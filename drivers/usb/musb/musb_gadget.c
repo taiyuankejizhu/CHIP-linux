@@ -2003,6 +2003,12 @@ void musb_g_disconnect(struct musb *musb)
 		spin_lock(&musb->lock);
 	}
 
+	/* On sunxi ep0 FADDR must be 0 when (re)entering peripheral mode */
+	if (musb->io.quirks & MUSB_SUN4I) {
+		musb_ep_select(musb->mregs, 0);
+		musb_writeb(musb->mregs, MUSB_FADDR, 0);
+	}
+
 	switch (musb->xceiv->otg->state) {
 	default:
 		dev_dbg(musb->controller, "Unhandled disconnect %s, setting a_idle\n",
