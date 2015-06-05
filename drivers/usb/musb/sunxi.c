@@ -183,6 +183,12 @@ static irqreturn_t sunxi_musb_interrupt(int irq, void *__hci)
 		musb->int_usb |= MUSB_INTR_DISCONNECT;
 	}
 
+	if ((musb->int_usb & MUSB_INTR_RESET) && !is_host_active(musb)) {
+		/* ep0 FADDR must be 0 when (re)entering peripheral mode */
+		musb_ep_select(musb->mregs, 0);
+		musb_writeb(musb->mregs, MUSB_FADDR, 0);
+	}
+
 	musb->int_tx = readw(musb->mregs + SUNXI_MUSB_INTRTX);
 	if (musb->int_tx)
 		writew(musb->int_tx, musb->mregs + SUNXI_MUSB_INTRTX);
@@ -519,7 +525,7 @@ static void sunxi_musb_writew(void __iomem *addr, unsigned offset, u16 data)
 }
 
 static const struct musb_platform_ops sunxi_musb_ops = {
-	.quirks		= MUSB_INDEXED_EP | MUSB_SUN4I,
+	.quirks		= MUSB_INDEXED_EP,
 	.init		= sunxi_musb_init,
 	.exit		= sunxi_musb_exit,
 	.enable		= sunxi_musb_enable,
