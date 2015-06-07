@@ -11,6 +11,8 @@
 #ifndef __LINUX_MFD_AXP20X_H
 #define __LINUX_MFD_AXP20X_H
 
+#include <linux/regmap.h>
+
 enum {
 	AXP202_ID = 0,
 	AXP209_ID,
@@ -365,5 +367,27 @@ struct axp20x_fg_pdata {
 	int tcsz;
 	int thermistor_curve[MAX_THERM_CURVE_SIZE][2];
 };
+
+/* generic helper function for reading 9-16 bit wide regs */
+static inline int axp20x_read_16bit(struct regmap *regmap,
+				    unsigned int reg, unsigned int width)
+{
+	unsigned int v, raw;
+	int r;
+
+	r = regmap_read(regmap, reg, &v);
+	if (r)
+		return r;
+
+	raw = v << (width - 8);
+
+	r = regmap_read(regmap, reg + 1, &v);
+	if (r)
+		return r;
+
+	raw |= v;
+
+	return raw;
+}
 
 #endif /* __LINUX_MFD_AXP20X_H */
