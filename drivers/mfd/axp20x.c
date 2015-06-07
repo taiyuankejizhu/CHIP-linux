@@ -113,6 +113,30 @@ static struct resource axp20x_pek_resources[] = {
 	},
 };
 
+static struct resource axp20x_usb_power_supply_resources[] = {
+	{
+		.name	= "VBUS_PLUGIN",
+		.start	= AXP20X_IRQ_VBUS_PLUGIN,
+		.end	= AXP20X_IRQ_VBUS_PLUGIN,
+		.flags	= IORESOURCE_IRQ,
+	}, {
+		.name	= "VBUS_REMOVAL",
+		.start	= AXP20X_IRQ_VBUS_REMOVAL,
+		.end	= AXP20X_IRQ_VBUS_REMOVAL,
+		.flags	= IORESOURCE_IRQ,
+	}, {
+		.name	= "VBUS_VALID",
+		.start	= AXP20X_IRQ_VBUS_VALID,
+		.end	= AXP20X_IRQ_VBUS_VALID,
+		.flags	= IORESOURCE_IRQ,
+	}, {
+		.name	= "VBUS_NOT_VALID",
+		.start	= AXP20X_IRQ_VBUS_NOT_VALID,
+		.end	= AXP20X_IRQ_VBUS_NOT_VALID,
+		.flags	= IORESOURCE_IRQ,
+	},
+};
+
 static struct resource axp22x_pek_resources[] = {
 	{
 		.name   = "PEK_DBR",
@@ -165,7 +189,7 @@ static const struct regmap_config axp20x_regmap_config = {
 	.val_bits	= 8,
 	.wr_table	= &axp20x_writeable_table,
 	.volatile_table	= &axp20x_volatile_table,
-	.max_register	= AXP20X_FG_RES,
+	.max_register	= AXP20X_OCV(15),
 	.cache_type	= REGCACHE_RBTREE,
 };
 
@@ -368,6 +392,12 @@ static struct mfd_cell axp20x_cells[] = {
 		.resources		= axp20x_pek_resources,
 	}, {
 		.name			= "axp20x-regulator",
+	}, {
+		.name			= "axp20x-usb-power-supply",
+		.of_compatible		= "x-powers,axp202-usb-power-supply",
+		.num_resources		=
+				ARRAY_SIZE(axp20x_usb_power_supply_resources),
+		.resources		= axp20x_usb_power_supply_resources,
 	},
 };
 
