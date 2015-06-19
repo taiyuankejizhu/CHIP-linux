@@ -67,7 +67,6 @@ struct musb_ep;
 #include "musb_dma.h"
 
 #include "musb_io.h"
-#include "musb_regs.h"
 
 #include "musb_gadget.h"
 #include <linux/usb/hcd.h>
@@ -165,6 +164,8 @@ struct musb_io;
  * @vbus_status: returns vbus status if possible
  * @set_vbus:	forces vbus status
  * @adjust_channel_params: pre check for standard dma channel_program func
+ * @pre_root_reset_end: called before the root usb port reset flag gets cleared
+ * @post_root_reset_end: called after the root usb port reset flag gets cleared
  */
 struct musb_platform_ops {
 
@@ -187,6 +188,7 @@ struct musb_platform_ops {
 	void	(*ep_select)(void __iomem *mbase, u8 epnum);
 	u16	fifo_mode;
 	u32	(*fifo_offset)(u8 epnum);
+	u32	(*busctl_offset)(u8 epnum, u16 offset);
 	u8	(*readb)(const void __iomem *addr, unsigned offset);
 	void	(*writeb)(void __iomem *addr, unsigned offset, u8 data);
 	u16	(*readw)(const void __iomem *addr, unsigned offset);
@@ -205,6 +207,8 @@ struct musb_platform_ops {
 	int	(*adjust_channel_params)(struct dma_channel *channel,
 				u16 packet_sz, u8 *mode,
 				dma_addr_t *dma_addr, u32 *len);
+	void	(*pre_root_reset_end)(struct musb *musb);
+	void	(*post_root_reset_end)(struct musb *musb);
 };
 
 /*
@@ -240,8 +244,6 @@ struct musb_hw_ep {
 	dma_addr_t		fifo_sync;
 	void __iomem		*fifo_sync_va;
 #endif
-
-	void __iomem		*target_regs;
 
 	/* currently scheduled peripheral endpoint */
 	struct musb_qh		*in_qh;
@@ -437,6 +439,9 @@ struct musb {
 #endif
 };
 
+/* This must be included after struct musb is defined */
+#include "musb_regs.h"
+
 static inline struct musb *gadget_to_musb(struct usb_gadget *g)
 {
 	return container_of(g, struct musb, g);
@@ -588,6 +593,18 @@ static inline int musb_platform_exit(struct musb *musb)
 		return -EINVAL;
 
 	return musb->ops->exit(musb);
+}
+
+static inline void musb_platform_pre_root_reset_end(struct musb *musb)
+{
+	if (musb->ops->pre_root_reset_end)
+		musb->ops->pre_root_reset_end(musb);
+}
+
+static inline void musb_platform_post_root_reset_end(struct musb *musb)
+{
+	if (musb->ops->post_root_reset_end)
+		musb->ops->post_root_reset_end(musb);
 }
 
 #endif	/* __MUSB_CORE_H__ */

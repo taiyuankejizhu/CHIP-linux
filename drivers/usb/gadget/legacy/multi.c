@@ -149,7 +149,7 @@ static struct usb_function *f_acm_rndis;
 static struct usb_function *f_rndis;
 static struct usb_function *f_msg_rndis;
 
-static __init int rndis_do_config(struct usb_configuration *c)
+static int rndis_do_config(struct usb_configuration *c)
 {
 	struct fsg_opts *fsg_opts;
 	int ret;
@@ -206,7 +206,7 @@ err_func_rndis:
 	return ret;
 }
 
-static __ref int rndis_config_register(struct usb_composite_dev *cdev)
+static int rndis_config_register(struct usb_composite_dev *cdev)
 {
 	static struct usb_configuration config = {
 		.bConfigurationValue	= MULTI_RNDIS_CONFIG_NUM,
@@ -221,7 +221,7 @@ static __ref int rndis_config_register(struct usb_composite_dev *cdev)
 
 #else
 
-static __ref int rndis_config_register(struct usb_composite_dev *cdev)
+static int rndis_config_register(struct usb_composite_dev *cdev)
 {
 	return 0;
 }
@@ -237,7 +237,7 @@ static struct usb_function *f_acm_multi;
 static struct usb_function *f_ecm;
 static struct usb_function *f_msg_multi;
 
-static __init int cdc_do_config(struct usb_configuration *c)
+static int cdc_do_config(struct usb_configuration *c)
 {
 	struct fsg_opts *fsg_opts;
 	int ret;
@@ -295,7 +295,7 @@ err_func_ecm:
 	return ret;
 }
 
-static __ref int cdc_config_register(struct usb_composite_dev *cdev)
+static int cdc_config_register(struct usb_composite_dev *cdev)
 {
 	static struct usb_configuration config = {
 		.bConfigurationValue	= MULTI_CDC_CONFIG_NUM,
@@ -310,7 +310,7 @@ static __ref int cdc_config_register(struct usb_composite_dev *cdev)
 
 #else
 
-static __ref int cdc_config_register(struct usb_composite_dev *cdev)
+static int cdc_config_register(struct usb_composite_dev *cdev)
 {
 	return 0;
 }
@@ -321,7 +321,7 @@ static __ref int cdc_config_register(struct usb_composite_dev *cdev)
 
 /****************************** Gadget Bind ******************************/
 
-static int __ref multi_bind(struct usb_composite_dev *cdev)
+static int multi_bind(struct usb_composite_dev *cdev)
 {
 	struct usb_gadget *gadget = cdev->gadget;
 #ifdef CONFIG_USB_G_MULTI_CDC
@@ -466,7 +466,7 @@ fail:
 	return status;
 }
 
-static int __exit multi_unbind(struct usb_composite_dev *cdev)
+static int multi_unbind(struct usb_composite_dev *cdev)
 {
 #ifdef CONFIG_USB_G_MULTI_CDC
 	usb_put_function(f_msg_multi);
