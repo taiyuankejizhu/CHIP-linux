@@ -451,6 +451,7 @@
 			interrupt-names = "mc";
 			phys = <&usbphy 0>;
 			phy-names = "usb";
+			extcon = <&usbphy 0>;
 			allwinner,sram = <&otg_sram 1>;
 			status = "disabled";
 		};
@@ -514,8 +515,7 @@
 			clocks = <&apb0_gates 5>;
 			gpio-controller;
 			interrupt-controller;
-			#interrupt-cells = <2>;
-			#size-cells = <0>;
+			#interrupt-cells = <3>;
 			#gpio-cells = <3>;
 
 			i2c0_pins_a: i2c0@0 {
@@ -592,6 +592,20 @@
 				allwinner,function = "nand0";
 				allwinner,drive = <0>;
 				allwinner,pull = <0>;
+			};
+
+			uart3_pins_a: uart3@0 {
+				allwinner,pins = "PG9", "PG10";
+				allwinner,function = "uart3";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
+			};
+
+			uart3_pins_cts_rts_a: uart3-cts-rts@0 {
+				allwinner,pins = "PG11", "PG12";
+				allwinner,function = "uart3";
+				allwinner,drive = <SUN4I_PINCTRL_10_MA>;
+				allwinner,pull = <SUN4I_PINCTRL_NO_PULL>;
 			};
 		};
 

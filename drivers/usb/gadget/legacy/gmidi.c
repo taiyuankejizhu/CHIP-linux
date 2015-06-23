@@ -118,7 +118,7 @@ static struct usb_gadget_strings *dev_strings[] = {
 static struct usb_function_instance *fi_midi;
 static struct usb_function *f_midi;
 
-static int __exit midi_unbind(struct usb_composite_dev *dev)
+static int midi_unbind(struct usb_composite_dev *dev)
 {
 	usb_put_function(f_midi);
 	usb_put_function_instance(fi_midi);
@@ -133,7 +133,7 @@ static struct usb_configuration midi_config = {
 	.MaxPower	= CONFIG_USB_GADGET_VBUS_DRAW,
 };
 
-static int __init midi_bind_config(struct usb_configuration *c)
+static int midi_bind_config(struct usb_configuration *c)
 {
 	int status;
 
@@ -150,7 +150,7 @@ static int __init midi_bind_config(struct usb_configuration *c)
 	return 0;
 }
 
-static int __init midi_bind(struct usb_composite_dev *cdev)
+static int midi_bind(struct usb_composite_dev *cdev)
 {
 	struct f_midi_opts *midi_opts;
 	int status;

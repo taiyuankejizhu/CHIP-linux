@@ -12,6 +12,7 @@ Required properties:
  - phys            : phy specifier for the otg phy
  - phy-names       : must be "usb"
  - dr_mode         : Dual-Role mode must be "host" or "otg"
+ - extcon          : extcon specifier for the otg phy
 
 Example:
 
@@ -23,5 +24,6 @@ Example:
 		interrupt-names = "mc";
 		phys = <&usbphy 0>;
 		phy-names = "usb";
+		extcon = <&usbphy 0>;
 		status = "disabled";
 	};
