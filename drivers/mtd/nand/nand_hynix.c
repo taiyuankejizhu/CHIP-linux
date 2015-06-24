@@ -141,31 +141,35 @@ static int h27q_get_best_val(const u8 *buf, int size, int min_cnt)
 	val = kzalloc(size * 2 * sizeof(int), GFP_KERNEL);
 	cnt = val + size;
 
-	val[0] = buf[0];
-	cnt[0] = 1;
+	for (i = 0; i < size; i++) {
+		if (val[i] < 0)
+			continue;
 
-	for (i = 1; i < size; i++) {
-		for (j = i; j < size; j++) {
-			if (val[j] == val[i]) {
+		val[i] = buf[i];
+		cnt[i] = 1;
+
+		for (j = i + 1; j < size; j++) {
+			if (buf[j] == val[i]) {
 				val[j] = -1;
 				cnt[i]++;
 			}
 		}
-	}
 
-	for (i = 0; i < size; i++) {
 		if (max_cnt < cnt[i]) {
 			max_cnt = cnt[i];
 			best = i;
 		}
 	}
 
+	if (best >= 0)
+		best = val[best];
+
 	kfree(val);
 
 	if (best < 0 || max_cnt < min_cnt)
 		return -EINVAL;
 
-	return val[best];
+	return best;
 }
 
 #define H27Q_RR_TABLE_SIZE		784
@@ -192,8 +196,7 @@ static int h27q_init(struct mtd_info *mtd, const uint8_t *id)
 	chip->cmdfunc(mtd, 0x17, -1, -1);
 	chip->cmdfunc(mtd, 0x04, -1, -1);
 	chip->cmdfunc(mtd, 0x19, -1, -1);
-	chip->cmdfunc(mtd, 0x0, 0x0, 0x21f);
-	chip->cmdfunc(mtd, 0x30, -1, -1);
+	chip->cmdfunc(mtd, NAND_CMD_READ0, 0x0, 0x21f);
 
 	chip->read_buf(mtd, buf, H27Q_RR_TABLE_SIZE);
 
@@ -201,8 +204,7 @@ static int h27q_init(struct mtd_info *mtd, const uint8_t *id)
 	chip->cmdfunc(mtd, 0x36, 0x38, -1);
 	chip->write_byte(mtd, 0x0);
 	chip->cmdfunc(mtd, 0x16, -1, -1);
-	chip->cmdfunc(mtd, 0x0, 0x0, -1);
-	chip->cmdfunc(mtd, 0x30, -1, -1);
+	chip->cmdfunc(mtd, NAND_CMD_READ0, 0x0, -1);
 
 	/* TODO: support multi-die chips */
 
@@ -268,7 +270,6 @@ static int h27q_init(struct mtd_info *mtd, const uint8_t *id)
 	chip->manuf_cleanup = h27_cleanup;
 
 leave:
-	kfree(tmp_buf);
 	kfree(buf);
 
 	if (ret)
